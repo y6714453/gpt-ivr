@@ -1,2 +1,2 @@
 <?php
-echo "שרת GPT חי!";
+echo "Hello, GPT Server is running!";
