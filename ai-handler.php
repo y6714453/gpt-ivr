@@ -5,14 +5,11 @@ if (!isset($_GET['file_link'])) {
 }
 
 $fileUrl = $_GET['file_link'];
-
-// הורדת קובץ ההקלטה
-$audioPath = "/tmp/recording.mp3";
-file_put_contents($audioPath, file_get_contents($fileUrl));
+$filePath = '/tmp/recording.mp3';
+file_put_contents($filePath, file_get_contents($fileUrl));
 
 // שלב 1: תמלול עם Whisper של OpenAI
 $openaiKey = 'הכנס_כאן_את_המפתח_שלך';
-
 $curl = curl_init();
 curl_setopt_array($curl, [
     CURLOPT_URL => "https://api.openai.com/v1/audio/transcriptions",
@@ -22,19 +19,15 @@ curl_setopt_array($curl, [
         "Authorization: Bearer $openaiKey"
     ],
     CURLOPT_POSTFIELDS => [
-        'file' => new CURLFile($audioPath),
+        'file' => new CURLFile($filePath),
         'model' => 'whisper-1'
     ]
 ]);
+
 $transcription = json_decode(curl_exec($curl), true);
 curl_close($curl);
 
 $question = $transcription['text'] ?? '';
-
-if (!$question) {
-    echo "tts=לא הצלחתי להבין את השאלה.";
-    exit;
-}
 
 // שלב 2: שליחת השאלה ל־ChatGPT
 $curl = curl_init();
@@ -53,6 +46,7 @@ curl_setopt_array($curl, [
         ]
     ])
 ]);
+
 $response = json_decode(curl_exec($curl), true);
 curl_close($curl);
 
